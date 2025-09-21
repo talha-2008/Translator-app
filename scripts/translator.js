@@ -21,10 +21,11 @@ const favoritesList = document.getElementById('favorites-list');
 const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
 
 // Translation endpoints and fallbacks
+// prefer the community argos mirror which tends to be more stable, then others
 const LIBRE_ENDPOINTS = [
-    'https://libretranslate.com/translate',
+    'https://translate.argosopentech.com/translate',
     'https://libretranslate.de/translate',
-    'https://translate.argosopentech.com/translate'
+    'https://libretranslate.com/translate'
 ];
 
 // MyMemory fallback (public, rate-limited, GET-based)
@@ -111,6 +112,7 @@ async function translateText() {
     
     const sourceLang = sourceLangSelect.value;
     const targetLang = targetLangSelect.value;
+    const sourceParam = autoDetect ? 'auto' : sourceLang;
     
     translatedTextarea.value = 'অনুবাদ হচ্ছে...';
     // Try LibreTranslate endpoints in sequence with timeout
@@ -121,11 +123,25 @@ async function translateText() {
             const res = await fetchWithTimeout(endpoint, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({q: text, source: sourceLang, target: targetLang, format: 'text'})
+                body: JSON.stringify({q: text, source: sourceParam, target: targetLang, format: 'text'})
             }, 8000);
 
             if(!res.ok){
-                lastError = new Error(`Endpoint ${endpoint} returned ${res.status}`);
+                // try to read error body for more details
+                let bodyText = '';
+                try{
+                    const t = await res.text();
+                    bodyText = t;
+                    // try to parse JSON for a message
+                    try{ const json = JSON.parse(t); bodyText = json.error || json.message || JSON.stringify(json); }catch(e){}
+                }catch(e){ bodyText = '<unavailable>'; }
+                lastError = new Error(`Endpoint ${endpoint} returned ${res.status}: ${bodyText}`);
+                console.warn('Libre endpoint non-OK', endpoint, res.status, bodyText);
+                // if server responds 400 and mentions language or unsupported, break and fallback
+                if(res.status === 400 && /language|unsupported|invalid/i.test(bodyText)){
+                    console.warn('Received 400 language error, falling back to alternate provider');
+                    break;
+                }
                 continue;
             }
 
@@ -133,10 +149,13 @@ async function translateText() {
             // LibreTranslate commonly returns {translatedText: '...'}
             translated = payload.translatedText || payload.result || payload.translated || '';
             if(translated) break;
+            // if payload empty, record payload for diagnostics
+            lastError = new Error(`Endpoint ${endpoint} returned empty payload: ${JSON.stringify(payload)}`);
+            console.warn('Libre endpoint returned empty', endpoint, payload);
         } catch(err){
             lastError = err;
             // try next endpoint
-            console.warn('Libre endpoint failed', endpoint, err);
+            console.warn('Libre endpoint failed', endpoint, err && err.message ? err.message : err);
             continue;
         }
     }
