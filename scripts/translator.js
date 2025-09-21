@@ -20,8 +20,23 @@ const favoritesPanel = document.getElementById('favorites-panel');
 const favoritesList = document.getElementById('favorites-list');
 const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
 
-// LibreTranslate API এর পাবলিক এন্ডপয়েন্ট
-const API_URL = 'https://libretranslate.com/translate';
+// Translation endpoints and fallbacks
+const LIBRE_ENDPOINTS = [
+    'https://libretranslate.com/translate',
+    'https://libretranslate.de/translate',
+    'https://translate.argosopentech.com/translate'
+];
+
+// MyMemory fallback (public, rate-limited, GET-based)
+const MYMEMORY_ENDPOINT = 'https://api.mymemory.translated.net/get';
+
+// helper: fetch with timeout
+function fetchWithTimeout(url, opts = {}, timeout = 8000){
+    return Promise.race([
+        fetch(url, opts),
+        new Promise((_, rej) => setTimeout(()=>rej(new Error('timeout')), timeout))
+    ]);
+}
 
 // LibreTranslate দ্বারা সমর্থিত কিছু ভাষার তালিকা
 // এটি Google এর থেকে কম, কিন্তু শেখার জন্য যথেষ্ট
@@ -98,33 +113,56 @@ async function translateText() {
     const targetLang = targetLangSelect.value;
     
     translatedTextarea.value = 'অনুবাদ হচ্ছে...';
+    // Try LibreTranslate endpoints in sequence with timeout
+    let translated = '';
+    let lastError = null;
+    for(const endpoint of LIBRE_ENDPOINTS){
+        try{
+            const res = await fetchWithTimeout(endpoint, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({q: text, source: sourceLang, target: targetLang, format: 'text'})
+            }, 8000);
 
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                q: text,
-                source: sourceLang,
-                target: targetLang,
-            }),
-        });
-        
-        const data = await response.json();
+            if(!res.ok){
+                lastError = new Error(`Endpoint ${endpoint} returned ${res.status}`);
+                continue;
+            }
 
-        if (response.ok) {
-            translatedTextarea.value = data.translatedText;
-        } else {
-            errorMessage.textContent = data.error || 'অনুবাদে সমস্যা হয়েছে।';
-            translatedTextarea.value = '';
+            const payload = await res.json();
+            // LibreTranslate commonly returns {translatedText: '...'}
+            translated = payload.translatedText || payload.result || payload.translated || '';
+            if(translated) break;
+        } catch(err){
+            lastError = err;
+            // try next endpoint
+            console.warn('Libre endpoint failed', endpoint, err);
+            continue;
         }
-        // save to history
-        saveToHistory(text, sourceLang, translatedTextarea.value, targetLang);
-    } catch (error) {
-        console.error('Error:', error);
-        errorMessage.textContent = 'সার্ভারের সাথে সংযোগে সমস্যা হয়েছে।';
+    }
+
+    // If LibreTranslate attempts failed or returned empty, try MyMemory fallback
+    if(!translated){
+        try{
+            const url = `${MYMEMORY_ENDPOINT}?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(sourceLang+'|'+targetLang)}`;
+            const res2 = await fetchWithTimeout(url, {}, 8000);
+            if(res2.ok){
+                const json = await res2.json();
+                translated = (json && json.responseData && json.responseData.translatedText) ? json.responseData.translatedText : '';
+            } else {
+                lastError = new Error('MyMemory returned ' + res2.status);
+            }
+        } catch(err){
+            lastError = err;
+        }
+    }
+
+    if(translated){
+        translatedTextarea.value = translated;
+        saveToHistory(text, sourceLang, translated, targetLang);
+    } else {
+        console.error('Translation failed', lastError);
+        errorMessage.textContent = 'অনুবাদ সার্ভারে সমস্যা হয়েছে — অনুগ্রহ করে পরে চেষ্টা করুন।';
         translatedTextarea.value = '';
     }
 }
