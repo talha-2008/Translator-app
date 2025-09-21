@@ -1,0 +1,97 @@
+.dictionary-page {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.dictionary-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 800px;
+}
+
+.search-box {
+    display: flex;
+    margin-bottom: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.search-box input {
+    flex: 1;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    font-size: 1rem;
+    outline: none;
+}
+
+.search-box button {
+    background-color: #4285F4;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-box button:hover {
+    background-color: #357ae8;
+}
+
+.results-area {
+    min-height: 200px;
+}
+
+.word-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.phonetic {
+    font-size: 1.2rem;
+    color: #888;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+}
+
+.meaning-card {
+    background-color: #f9f9f9;
+    border-left: 5px solid #4285F4;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.meaning-card h4 {
+    font-size: 1.3rem;
+    color: #1a73e8;
+    margin-top: 0;
+}
+
+.meaning-card p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.meaning-card ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.meaning-card ul li {
+    margin-bottom: 0.5rem;
+}
+
+.error-message {
+    color: #d9534f;
+    text-align: center;
+    margin-top: 1rem;
+}

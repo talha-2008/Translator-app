@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary - Google Translator Clone</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/dictionary.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-language"></i>
+            <h1>Translate & Learn</h1>
+        </div>
+        <nav>
+            <a href="translator.html" class="nav-button">অনুবাদক</a>
+            <a href="dictionary.html" class="nav-button active">অভিধান</a>
+        </nav>
+    </header>
+
+    <main class="dictionary-page">
+        <div class="dictionary-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="এখানে শব্দ লিখুন...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="results-area" class="results-area">
+                <div id="word-title" class="word-title"></div>
+                <div id="phonetic" class="phonetic"></div>
+                <div id="meanings" class="meanings"></div>
+            </div>
+            <div id="error-message" class="error-message"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Translator App. All rights reserved.</p>
+    </footer>
+    <script src="scripts/dictionary.js"></script>
+</body>
+</html>

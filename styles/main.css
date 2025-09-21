@@ -1,0 +1,70 @@
+:root{
+    --bg: rgba(6,10,12,0.6);
+    --page-bg: linear-gradient(180deg,#050507 0%, #061018 60%);
+    --panel: rgba(255,255,255,0.03);
+    --card: rgba(255,255,255,0.02);
+    --glass-border: rgba(255,255,255,0.06);
+    --text: #e6eef8;
+    --muted: rgba(230,238,248,0.58);
+    --accent: #1DB954; /* Spotify green */
+    --accent-glow: rgba(29,185,84,0.18);
+    --radius: 14px;
+    --shadow: 0 12px 40px rgba(2,6,23,0.7);
+}
+
+/* Reset and layout */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+    font-family:'Poppins',sans-serif;margin:0;padding:0;
+    background:var(--page-bg);color:var(--text);
+    display:flex;flex-direction:column;min-height:100vh;position:relative;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+
+/* decorative blurred blobs to give Spotify-like vibe */
+body::before, body::after{
+    content:'';position:fixed;z-index:0;left:50%;transform:translateX(-50%);pointer-events:none;filter:blur(80px);opacity:0.18;width:900px;height:520px;border-radius:45%;
+}
+body::before{top:-10%;background:radial-gradient(circle at 30% 30%, rgba(29,185,84,0.18), transparent 20%), radial-gradient(circle at 70% 70%, rgba(16,24,40,0.6), transparent 40%)}
+body::after{bottom:-18%;background:radial-gradient(circle at 20% 70%, rgba(13,110,253,0.10), transparent 20%), radial-gradient(circle at 80% 30%, rgba(29,185,84,0.06), transparent 40%)}
+
+/* Header */
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;position:relative;z-index:5}
+.logo{display:flex;align-items:center;gap:12px}
+.logo i{font-size:26px;color:var(--accent);filter:drop-shadow(0 6px 18px rgba(29,185,84,0.08))}
+.logo h1{font-size:20px;margin:0;font-weight:700;color:var(--text)}
+
+nav{display:flex;gap:8px;align-items:center}
+nav a{color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:12px;font-weight:600;backdrop-filter:blur(6px)}
+nav a.active{background:linear-gradient(90deg, rgba(29,185,84,0.08), rgba(29,185,84,0.02));color:var(--accent);box-shadow:0 6px 18px rgba(1,6,14,0.6)}
+nav a:hover{background:rgba(255,255,255,0.02);color:var(--text)}
+
+/* Page container */
+.home-page{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:18px;z-index:2}
+.intro-section{max-width:920px;text-align:center;margin-bottom:8px}
+.intro-section h2{font-size:36px;margin:0 0 12px;color:var(--text);letter-spacing:0.2px}
+.intro-section p{font-size:16px;color:var(--muted);line-height:1.6;margin:0;max-width:720px}
+
+/* CTA section - glass cards */
+.cta-section{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.cta-card{width:340px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:22px;border:1px solid var(--glass-border);backdrop-filter:blur(8px);box-shadow:var(--shadow);transition:transform .28s, box-shadow .28s}
+.cta-card:hover{transform:translateY(-8px);box-shadow:0 20px 54px rgba(2,6,23,0.72)}
+.cta-card h3{margin:0 0 8px;font-size:18px;color:var(--text);display:flex;align-items:center;gap:10px}
+.cta-card p{margin:0;color:var(--muted);font-size:14px}
+.cta-card .action-button{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;background:var(--accent);color:#061014;font-weight:800;margin-top:14px;text-decoration:none;box-shadow:0 8px 22px var(--accent-glow);}
+.cta-card .action-button i{font-size:14px}
+.cta-card .action-button:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(29,185,84,0.18)}
+
+/* Footer */
+footer{width:100%;text-align:center;padding:18px;background:transparent;color:var(--muted);font-size:13px;border-top:1px solid rgba(255,255,255,0.02);margin-top:36px;z-index:2}
+
+/* Responsive */
+@media (max-width:880px){.intro-section h2{font-size:28px}.cta-card{width:100%;max-width:520px}}
+
+/* Focus states for accessibility */
+a:focus,button:focus,input:focus,select:focus,textarea:focus{outline:3px solid rgba(29,185,84,0.14);outline-offset:3px}
+
+/* Small utilities */
+.muted{color:var(--muted)}
+.center{text-align:center}
